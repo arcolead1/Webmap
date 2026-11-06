@@ -184,6 +184,14 @@ function route(req, res) {
   const p = url.pathname;
   const now = new Date().toISOString();
 
+  if (p === "/config.js" && process.env.CARTO_APIKEY) {
+    res.writeHead(200, {
+      "Content-Type": MIME[".js"],
+      "Cache-Control": "no-store",
+      "X-Content-Type-Options": "nosniff"
+    });
+    return res.end("window.WEBMAP_CONFIG = { cartoKey: " + JSON.stringify(process.env.CARTO_APIKEY.trim()) + " };\n");
+  }
   if (p === "/api/health") {
     return sendJSON(res, 200, {
       status: "ok",

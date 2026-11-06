@@ -46,6 +46,12 @@ npm run dev        # auto-restart saat file berubah (Node >= 18.11)
 ```
 
 Env opsional: `PORT` (default 8000), `HOST` (default semua interface), `CORS_ORIGIN` (default `*`).
+Kunci peta CARTO (opsional, menghilangkan tulisan "API KEY REQUIRED" di peta):
+- GitHub Pages: tambah secret `CARTO_APIKEY` di Settings → Secrets and variables → Actions, lalu di Settings → Pages pilih Source "GitHub Actions". Workflow `pages.yml` membuat `config.js` saat deploy.
+- Vercel atau host lain: tambah env var `CARTO_APIKEY`, lalu isi Build Command `node scripts/make-config.js` (Output Directory `.`).
+- Server Node: `CARTO_APIKEY=... node server.js`.
+- Kunci tampil di browser, jadi batasi per website di dashboard.basemaps.carto.com. Jangan commit `config.js` yang berisi kunci.
+
 Data API dibaca dari `data/locations.json`, `data/kpi.json`, `data/monitor.json` (bisa diedit tanpa restart).
 
 Server menyediakan juga:
