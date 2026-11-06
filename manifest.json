@@ -1,11 +1,11 @@
 {
-  "name": "WebMap — Dashboard WebGL Ringan",
+  "name": "WebMap — Pantauan Dunia Langsung",
   "short_name": "WebMap",
-  "description": "Dashboard data visualization WebGL ringan, cepat, dan hemat cache.",
+  "description": "Peta dan ringkasan kabar dunia yang ringan dan diperbarui langsung.",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#0f0f1a",
-  "theme_color": "#0f0f1a",
+  "background_color": "#05070a",
+  "theme_color": "#05070a",
   "orientation": "portrait-primary",
   "icons": [
     {

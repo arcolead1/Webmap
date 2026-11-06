@@ -15,6 +15,8 @@
 
   function applyTheme(theme, persist) {
     root.setAttribute("data-theme", theme);
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", theme === "dark" ? "#05070a" : "#f4f6f8");
     var btn = document.getElementById("theme-toggle");
     if (btn) btn.textContent = theme === "dark" ? "🌙" : "☀️";
     if (persist) {

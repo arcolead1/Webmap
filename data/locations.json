@@ -13,7 +13,7 @@
     "nama": "Bandung",
     "lat": -6.9175,
     "lon": 107.6191,
-    "tag": "R&D",
+    "tag": "Riset",
     "users": 21,
     "trend": 8.1
   },
@@ -31,7 +31,7 @@
     "nama": "Surabaya",
     "lat": -7.2575,
     "lon": 112.7521,
-    "tag": "Sales",
+    "tag": "Penjualan",
     "users": 18,
     "trend": 5.9
   },
@@ -40,7 +40,7 @@
     "nama": "Makassar",
     "lat": -5.1477,
     "lon": 119.4327,
-    "tag": "Summit",
+    "tag": "Pertemuan",
     "users": 8,
     "trend": 9.7
   }

@@ -13,7 +13,7 @@
   function startSim() {
     if (simOn) return;
     simOn = true;
-    setState("● simulasi", false);
+    setState("● data contoh", false);
     var value = 62;
     window.setInterval(function () {
       value += (Math.random() - 0.48) * 8;
@@ -31,7 +31,7 @@
 
   if (es) {
     es.onopen = function () {
-      setState("● live · SSE", true);
+      setState("● langsung", true);
     };
     es.onmessage = function (ev) {
       var d;

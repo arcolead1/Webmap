@@ -3,10 +3,10 @@
 
   var EMBED = [
     { id: "jakarta", nama: "Jakarta Pusat", lat: -6.2088, lon: 106.8456, tag: "Kantor Pusat", users: 38, trend: 12.4 },
-    { id: "bandung", nama: "Bandung", lat: -6.9175, lon: 107.6191, tag: "R&D", users: 21, trend: 8.1 },
+    { id: "bandung", nama: "Bandung", lat: -6.9175, lon: 107.6191, tag: "Riset", users: 21, trend: 8.1 },
     { id: "yogyakarta", nama: "Yogyakarta", lat: -7.7971, lon: 110.3708, tag: "Kampus", users: 15, trend: -2.3 },
-    { id: "surabaya", nama: "Surabaya", lat: -7.2575, lon: 112.7521, tag: "Sales", users: 18, trend: 5.9 },
-    { id: "makassar", nama: "Makassar", lat: -5.1477, lon: 119.4327, tag: "Summit", users: 8, trend: 9.7 }
+    { id: "surabaya", nama: "Surabaya", lat: -7.2575, lon: 112.7521, tag: "Penjualan", users: 18, trend: 5.9 },
+    { id: "makassar", nama: "Makassar", lat: -5.1477, lon: 119.4327, tag: "Pertemuan", users: 8, trend: 9.7 }
   ];
 
   var el = document.getElementById("map");
@@ -115,11 +115,11 @@
     .then(function (d) {
       if (!d.locations || !d.locations.length) throw new Error("kosong");
       addPoints(d.locations);
-      setSource("Sumber: API Node · " + d.total + " titik aktif");
+      setSource("Data dari server · " + d.total + " titik");
     })
     .catch(function () {
       addPoints(EMBED);
-      setSource("Sumber: data statis (fallback) — jalankan server Node untuk API");
+      setSource("Data contoh (server tidak aktif)");
     });
 
   var fitBtn = document.getElementById("map-fit");

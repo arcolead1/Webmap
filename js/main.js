@@ -47,43 +47,6 @@
     revealables.forEach(function (el) { io.observe(el); });
   }
 
-  function animateValue(el) {
-    if (el.dataset.done) return;
-    el.dataset.done = "1";
-    var target = parseFloat(el.dataset.count || "0");
-    var decimals = parseInt(el.dataset.decimals || "0", 10);
-    var duration = 1200;
-    var start = performance.now();
-    var step = function (now) {
-      var p = Math.min((now - start) / duration, 1);
-      p = 1 - Math.pow(1 - p, 3);
-      var value = target * p;
-      if (decimals > 0) {
-        el.textContent = value.toFixed(decimals);
-      } else {
-        el.textContent = Math.round(value).toLocaleString("id-ID");
-      }
-      if (p < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  }
-
-  var counters = document.querySelectorAll(".kpi-value");
-  if ("IntersectionObserver" in window) {
-    var cio = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          entry.target.querySelectorAll("[data-count]").forEach(animateValue);
-          if (entry.target.dataset.count) animateValue(entry.target);
-          cio.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.4 });
-    counters.forEach(function (el) { cio.observe(el); });
-  } else {
-    counters.forEach(function (el) { animateValue(el); });
-  }
-
   var form = document.getElementById("contact-form");
   if (form) {
     var fields = {
@@ -101,6 +64,7 @@
       var f = fields[key];
       var ok = f.test(f.el.value);
       f.el.closest(".field").classList.toggle("invalid", !ok);
+      f.el.setAttribute("aria-invalid", String(!ok));
       f.el.closest(".field").querySelector(".err").textContent = ok ? "" : f.msg;
       return ok;
     }
@@ -111,35 +75,23 @@
       var msg = form.querySelector(".form-msg");
       if (ok) {
         msg.hidden = false;
-        msg.textContent = "✅ Terima kasih! Pesanmu terkirim (demo, tanpa backend).";
+        msg.classList.remove("error");
+        msg.textContent = "✅ Terima kasih! Ini hanya demo, jadi pesanmu belum dikirim ke mana pun.";
         form.reset();
         Object.keys(fields).forEach(function (k) {
           fields[k].el.closest(".field").classList.remove("invalid");
+          fields[k].el.removeAttribute("aria-invalid");
           fields[k].el.closest(".field").querySelector(".err").textContent = "";
         });
       } else {
         msg.hidden = false;
+        msg.classList.add("error");
         msg.textContent = "⚠️ Periksa kembali isian yang ditandai merah.";
-        msg.style.background = "rgba(248,113,113,0.12)";
-        msg.style.color = "var(--down)";
-        msg.style.borderColor = "var(--down)";
+        var bad = Object.keys(fields).filter(function (k) {
+          return fields[k].el.getAttribute("aria-invalid") === "true";
+        })[0];
+        if (bad) fields[bad].el.focus();
       }
     });
   }
-
-  fetch("/api/kpi")
-    .then(function (r) {
-      if (!r.ok) throw new Error("api");
-      return r.json();
-    })
-    .then(function (d) {
-      var kpi = (d && d.kpi) || {};
-      document.querySelectorAll(".kpi-value[data-key]").forEach(function (el) {
-        if (kpi[el.dataset.key] === undefined || kpi[el.dataset.key] === null) return;
-        var inner = el.querySelector("[data-count]") || el;
-        inner.dataset.count = String(kpi[el.dataset.key]);
-        animateValue(inner);
-      });
-    })
-    .catch(function () {});
 })();

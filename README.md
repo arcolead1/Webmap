@@ -1,6 +1,6 @@
 # WebMap 🗺️
 
-Monitor intelijen global **ringan** yang mengalirkan sinyal mentah dunia ke satu peta hidup — dibangun dengan **vanilla HTML/CSS/JS + Three.js + Leaflet**, didukung **micro-server Node.js tanpa dependency**. Tampilan meniru pola World Monitor: gelap, padat data, bersumber, dan live.
+Pantauan dunia **ringan** yang menampilkan kabar mentah (kapal, jaringan, cuaca, harga) di satu peta yang selalu diperbarui — dibangun dengan **vanilla HTML/CSS/JS + Three.js + Leaflet**, didukung **micro-server Node.js tanpa dependency**. Tampilan meniru pola World Monitor: gelap, padat data, bersumber, dan live.
 
 ## Fitur
 
