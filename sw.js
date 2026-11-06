@@ -1,4 +1,4 @@
-var CACHE = "webmap-v3";
+var CACHE = "webmap-v5";
 var ASSETS = [
   "./",
   "index.html",
@@ -14,7 +14,9 @@ var ASSETS = [
 ];
 var CDN = [
   "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
-  "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+  "https://unpkg.com/three@0.170.0/build/three.module.js",
+  "https://unpkg.com/three@0.170.0/examples/jsm/controls/OrbitControls.js"
 ];
 
 self.addEventListener("install", function (event) {
@@ -45,34 +47,43 @@ self.addEventListener("activate", function (event) {
   );
 });
 
+function remember(req, res) {
+  var copy = res.clone();
+  caches.open(CACHE).then(function (cache) {
+    cache.put(req, copy);
+  });
+}
+
 self.addEventListener("fetch", function (event) {
   var req = event.request;
   if (req.method !== "GET") return;
   var url = new URL(req.url);
-  if (url.origin !== self.location.origin && url.hostname !== "unpkg.com") return;
+  var isCDN = url.hostname === "unpkg.com";
+  if (url.origin !== self.location.origin && !isCDN) return;
   if (url.pathname.indexOf("/api/") === 0) return;
 
+  if (isCDN) {
+    event.respondWith(
+      caches.match(req).then(function (cached) {
+        return cached || fetch(req).then(function (res) {
+          if (res && res.ok && CDN.indexOf(req.url) !== -1) remember(req, res);
+          return res;
+        });
+      })
+    );
+    return;
+  }
+
+  // File situs sendiri: ambil yang terbaru dulu, cache hanya cadangan saat offline.
   event.respondWith(
-    caches.match(req).then(function (cached) {
-      var network = fetch(req).then(function (res) {
-        if (res && res.ok && res.type === "basic") {
-          var copy = res.clone();
-          caches.open(CACHE).then(function (cache) {
-            cache.put(req, copy);
-          });
-        } else if (res && res.ok && res.type === "cors" &&
-                   url.hostname === "unpkg.com" && CDN.indexOf(req.url) !== -1) {
-          var cdnCopy = res.clone();
-          caches.open(CACHE).then(function (cache) {
-            cache.put(req, cdnCopy);
-          });
-        }
-        return res;
-      }).catch(function () {
-        if (req.mode === "navigate") return caches.match("index.html");
-        return cached;
+    fetch(req).then(function (res) {
+      if (res && res.ok && res.type === "basic") remember(req, res);
+      return res;
+    }).catch(function () {
+      return caches.match(req).then(function (cached) {
+        if (cached) return cached;
+        return req.mode === "navigate" ? caches.match("index.html") : Response.error();
       });
-      return cached || network;
     })
   );
 });

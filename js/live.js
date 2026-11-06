@@ -9,8 +9,11 @@
     badge.setAttribute("data-state", on ? "on" : "sim");
   }
 
+  var simOn = false;
   function startSim() {
-    setState("● simulasi", false);
+    if (simOn) return;
+    simOn = true;
+    setState("● data contoh", false);
     var value = 62;
     window.setInterval(function () {
       value += (Math.random() - 0.48) * 8;
@@ -28,7 +31,7 @@
 
   if (es) {
     es.onopen = function () {
-      setState("● live · SSE", true);
+      setState("● langsung", true);
     };
     es.onmessage = function (ev) {
       var d;
@@ -40,8 +43,11 @@
       if (typeof d.value === "number") window.WebMapCharts.pushLive(d.value);
     };
     es.addEventListener("error", function () {
-      try { es.close(); } catch (e) {}
-      startSim();
+      if (es.readyState === 2) {
+        startSim();
+      } else if (!simOn) {
+        setState("● menyambung ulang…", false);
+      }
     });
   } else {
     startSim();

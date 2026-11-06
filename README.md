@@ -1,6 +1,6 @@
 # WebMap 🗺️
 
-Monitor intelijen global **ringan** yang mengalirkan sinyal mentah dunia ke satu peta hidup — dibangun dengan **vanilla HTML/CSS/JS + Three.js + Leaflet**, didukung **micro-server Node.js tanpa dependency**. Tampilan meniru pola World Monitor: gelap, padat data, bersumber, dan live.
+Pantauan dunia **ringan** yang menampilkan kabar mentah (kapal, jaringan, cuaca, harga) di satu peta yang selalu diperbarui — dibangun dengan **vanilla HTML/CSS/JS + Three.js + Leaflet**, didukung **micro-server Node.js tanpa dependency**. Tampilan meniru pola World Monitor: gelap, padat data, bersumber, dan live.
 
 ## Fitur
 
@@ -41,15 +41,19 @@ webmap/
 
 ```bash
 npm start          # atau: PORT=8080 node server.js
+npm run dev        # auto-restart saat file berubah (Node >= 18.11)
 # buka http://localhost:8000
 ```
+
+Env opsional: `PORT` (default 8000), `HOST` (default semua interface), `CORS_ORIGIN` (default `*`).
+Data API dibaca dari `data/locations.json`, `data/kpi.json`, `data/monitor.json` (bisa diedit tanpa restart).
 
 Server menyediakan juga:
 - `GET /api/health` — status, uptime, jumlah klien SSE
 - `GET /api/locations` — data titik untuk peta
 - `GET /api/kpi` — angka KPI
 - `GET /api/monitor` — agregat panel live (stats, signals, sectors, chokepoints, markets)
-- `GET /api/stream` — Server-Sent Events, satu nilai setiap 2 detik
+- `GET /api/stream` — Server-Sent Events, satu nilai setiap 2 detik (maks 200 klien)
 
 **Tanpa Node (halaman tetap jalan):**
 

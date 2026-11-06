@@ -9,6 +9,8 @@
  *   LIVE    : GET /api/stream (Server-Sent Events) untuk sinyal real-time.
  *
  * Jalankan:  PORT=8000 node server.js
+ * Env     :  PORT, HOST (default semua interface), CORS_ORIGIN (default *)
+ * Data    :  data/locations.json, data/kpi.json, data/monitor.json
  */
 
 const http = require("http");
@@ -17,7 +19,12 @@ const path = require("path");
 const zlib = require("zlib");
 
 const ROOT = __dirname;
-const PORT = Number(process.env.PORT || 8000);
+const PORT_ENV = Number(process.env.PORT);
+const PORT = Number.isInteger(PORT_ENV) && PORT_ENV >= 0 && PORT_ENV < 65536 ? PORT_ENV : 8000;
+const HOST = process.env.HOST || undefined;
+const CORS_ORIGIN = process.env.CORS_ORIGIN || "*";
+const MAX_CLIENTS = 200;
+const COMPRESSIBLE = /^(text\/|application\/(json|javascript)|image\/svg|image\/x-icon)/;
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
@@ -34,55 +41,23 @@ const MIME = {
   ".woff2": "font/woff2"
 };
 
-/* ---------- Data monitor (contoh, netral) ---------- */
+/* ---------- Data (dibaca dari folder data/, bisa diedit tanpa restart) ---------- */
 
-const LOCATIONS = [
-  { id: "jakarta", nama: "Jakarta Pusat", lat: -6.2088, lon: 106.8456, tag: "Kantor Pusat", users: 38, trend: 12.4 },
-  { id: "bandung", nama: "Bandung", lat: -6.9175, lon: 107.6191, tag: "R&D", users: 21, trend: 8.1 },
-  { id: "yogyakarta", nama: "Yogyakarta", lat: -7.7971, lon: 110.3708, tag: "Kampus", users: 15, trend: -2.3 },
-  { id: "surabaya", nama: "Surabaya", lat: -7.2575, lon: 112.7521, tag: "Sales", users: 18, trend: 5.9 },
-  { id: "makassar", nama: "Makassar", lat: -5.1477, lon: 119.4327, tag: "Summit", users: 8, trend: 9.7 }
-];
+const DATA_DIR = path.join(ROOT, "data");
+const MONITOR_EMPTY = { stats: [], signals: [], sectors: [], chokepoints: [], markets: [] };
+const warned = new Set();
 
-const KPI = { pengunjung: 128400, transaksi: 38920, bounce: 31, load: 0.8 };
-
-const MONITOR = {
-  stats: [
-    { label: "Jenis Lapisan Peta", value: 57 },
-    { label: "Feed Berita & OSINT", value: 461 },
-    { label: "Penyedia (Atribusi)", value: 750 },
-    { label: "Asal Alert Independen", value: 5 }
-  ],
-  signals: [
-    { kicker: "GRID", title: "Beban jaringan listrik naik 9% di tiga koridor simulasi menjelang jam puncak.", src: "FEED/GRID", ago: "2m" },
-    { kicker: "HARGA", title: "Densitas penawaran melemah; spread komoditas melebar di kawasan Asia.", src: "FEED/MKT", ago: "4m" },
-    { kicker: "AIS", title: "Pergerakan kapal di lintas selat naik; sirkulasi logistik mulai padat.", src: "AIS/VESSEL", ago: "7m" },
-    { kicker: "CUACA", title: "Badai tropis mendekati pesisir timur; peringatan banjir & longsor dikeluarkan.", src: "FEED/WX", ago: "9m" },
-    { kicker: "SUPLAI", title: "Antrean truk di gerbang logistik memanjang; indeks penundaan menguat.", src: "GOOG/HTML", ago: "11m" },
-    { kicker: "SIBER", title: "Lonjakan anomali BGP di satu segmen backbone; provider mulai rerouting.", src: "FEED/NET", ago: "13m" }
-  ],
-  sectors: [
-    { flag: "🇺🇦", code: "UA", val: 82 },
-    { flag: "🇷🇺", code: "RU", val: 76 },
-    { flag: "🇸🇾", code: "SY", val: 72 },
-    { flag: "🇮🇷", code: "IR", val: 70 },
-    { flag: "🇲🇽", code: "MX", val: 70 }
-  ],
-  chokepoints: [
-    { name: "Selat Lombok", status: "tersendat", val: 70 },
-    { name: "Selat Sunda", status: "tersendat", val: 68 },
-    { name: "Selat Malaka", status: "waspada", val: 48 },
-    { name: "Selat Makassar", status: "lancar", val: 35 },
-    { name: "Lintas Korea", status: "waspada", val: 45 }
-  ],
-  markets: [
-    { name: "IDX Composite", cls: "ekuitas", val: 7651, pct: 0.17 },
-    { name: "Rupiah (DXY)", cls: "fx", val: 156.99, pct: -0.10 },
-    { name: "Emas", cls: "logam", val: 4399, pct: 0.58 },
-    { name: "Minyak WTI", cls: "energi", val: 94.00, pct: -2.16 },
-    { name: "Bitcoin", cls: "kripto", val: 81451, pct: 1.35 }
-  ]
-};
+function loadJSON(name, fallback) {
+  try {
+    return JSON.parse(fs.readFileSync(path.join(DATA_DIR, name), "utf8"));
+  } catch (e) {
+    if (!warned.has(name)) {
+      warned.add(name);
+      console.warn("data/" + name + " tidak terbaca (" + e.code + "), pakai nilai kosong");
+    }
+    return fallback;
+  }
+}
 
 const clients = new Set();
 const LIVE = { value: 62 };
@@ -98,7 +73,8 @@ function sendJSON(res, code, obj) {
   res.writeHead(code, {
     "Content-Type": "application/json; charset=utf-8",
     "Cache-Control": "no-store",
-    "Access-Control-Allow-Origin": "*"
+    "X-Content-Type-Options": "nosniff",
+    "Access-Control-Allow-Origin": CORS_ORIGIN
   });
   res.end(body);
 }
@@ -121,7 +97,8 @@ function serveStatic(req, res, pathname) {
 
   fs.stat(full, (statErr, st) => {
     if (statErr || !st.isFile()) {
-      return sendJSON(res, 404, { error: "404 — file tidak ditemukan: " + pathname });
+      res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8", "X-Content-Type-Options": "nosniff" });
+      return res.end("404 — file tidak ditemukan");
     }
 
     const etag = '"' + st.mtimeMs.toString(36) + "-" + st.size.toString(36) + '"';
@@ -136,17 +113,25 @@ function serveStatic(req, res, pathname) {
     const headers = {
       "Content-Type": type,
       "Cache-Control": path.extname(full) === ".html" ? "no-cache" : "public, max-age=600",
+      "X-Content-Type-Options": "nosniff",
       ETag: etag
     };
 
-    if (acceptGzip && !isHead) headers["Content-Encoding"] = "gzip";
+    const gzip = acceptGzip && COMPRESSIBLE.test(type);
+    if (COMPRESSIBLE.test(type)) headers.Vary = "Accept-Encoding";
+    if (gzip) headers["Content-Encoding"] = "gzip";
+    else headers["Content-Length"] = st.size;
     res.writeHead(200, headers);
     if (isHead) return res.end();
 
     const stream = fs.createReadStream(full);
+    const fail = function () { res.destroy(); };
+    stream.on("error", fail);
     res.on("close", () => stream.destroy());
-    if (acceptGzip) {
-      stream.pipe(zlib.createGzip()).pipe(res);
+    if (gzip) {
+      const gz = zlib.createGzip();
+      gz.on("error", fail);
+      stream.pipe(gz).pipe(res);
     } else {
       stream.pipe(res);
     }
@@ -154,12 +139,14 @@ function serveStatic(req, res, pathname) {
 }
 
 function handleSSE(req, res) {
+  if (clients.size >= MAX_CLIENTS) return sendJSON(res, 503, { error: "terlalu banyak koneksi" });
   res.writeHead(200, {
     "Content-Type": "text/event-stream",
     "Cache-Control": "no-store",
     "Connection": "keep-alive",
     "X-Accel-Buffering": "no",
-    "Access-Control-Allow-Origin": "*"
+    "X-Content-Type-Options": "nosniff",
+    "Access-Control-Allow-Origin": CORS_ORIGIN
   });
   res.write("retry: 3000\n\n");
   res.write("data: " + JSON.stringify({ t: Date.now(), value: nextLive() }) + "\n\n");
@@ -171,6 +158,7 @@ function handleSSE(req, res) {
 }
 
 setInterval(function () {
+  if (!clients.size) return;
   const payload = "data: " + JSON.stringify({ t: Date.now(), value: nextLive() }) + "\n\n";
   clients.forEach(function (c) {
     try {
@@ -180,16 +168,6 @@ setInterval(function () {
     }
   });
 }, 2000);
-
-setInterval(function () {
-  clients.forEach(function (c) {
-    try {
-      c.write(": hb " + Date.now() + "\n\n");
-    } catch (e) {
-      clients.delete(c);
-    }
-  });
-}, 25000);
 
 function route(req, res) {
   let url;
@@ -215,29 +193,31 @@ function route(req, res) {
     });
   }
   if (p === "/api/locations") {
+    const locations = loadJSON("locations.json", []);
     return sendJSON(res, 200, {
       source: "webmap-server",
       updated: now,
-      total: LOCATIONS.length,
-      locations: LOCATIONS
+      total: locations.length,
+      locations: locations
     });
   }
   if (p === "/api/kpi") {
     return sendJSON(res, 200, {
       source: "webmap-server",
       updated: now,
-      kpi: KPI
+      kpi: loadJSON("kpi.json", {})
     });
   }
   if (p === "/api/monitor") {
+    const m = loadJSON("monitor.json", MONITOR_EMPTY);
     return sendJSON(res, 200, {
       source: "webmap-server",
       updated: now,
-      stats: MONITOR.stats,
-      signals: MONITOR.signals,
-      sectors: MONITOR.sectors,
-      chokepoints: MONITOR.chokepoints,
-      markets: MONITOR.markets
+      stats: m.stats || [],
+      signals: m.signals || [],
+      sectors: m.sectors || [],
+      chokepoints: m.chokepoints || [],
+      markets: m.markets || []
     });
   }
   if (p === "/api/stream") {
@@ -254,15 +234,24 @@ function route(req, res) {
 
 const server = http.createServer(route);
 
-server.listen(PORT, function () {
-  console.log("WebMap server aktif → http://localhost:" + PORT);
+server.on("error", function (err) {
+  console.error("Server gagal start: " + err.code + " — " + err.message);
+  process.exit(1);
+});
+
+server.listen(PORT, HOST, function () {
+  const port = server.address().port;
+  console.log("WebMap server aktif → http://localhost:" + port);
   console.log("  API  : /api/health /api/locations /api/kpi /api/monitor");
   console.log("  LIVE : /api/stream (SSE)");
 });
 
-process.on("SIGINT", function () {
+function shutdown() {
   clients.forEach(function (c) {
     try { c.end(); } catch (e) {}
   });
   server.close(function () { process.exit(0); });
-});
+  setTimeout(function () { process.exit(0); }, 3000).unref();
+}
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);

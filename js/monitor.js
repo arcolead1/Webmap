@@ -2,40 +2,147 @@
   "use strict";
 
   var EMBED = {
-    stats: [
-      { label: "Jenis Lapisan Peta", value: 57 },
-      { label: "Feed Berita & OSINT", value: 461 },
-      { label: "Penyedia (Atribusi)", value: 750 },
-      { label: "Asal Alert Independen", value: 5 }
+    "stats": [
+      {
+        "label": "Lapisan Peta",
+        "value": 57
+      },
+      {
+        "label": "Sumber Berita",
+        "value": 461
+      },
+      {
+        "label": "Penyedia Data",
+        "value": 750
+      },
+      {
+        "label": "Sumber Peringatan",
+        "value": 5
+      }
     ],
-    signals: [
-      { kicker: "GRID", title: "Beban jaringan listrik naik 9% di tiga koridor simulasi menjelang jam puncak.", src: "FEED/GRID", ago: "2m" },
-      { kicker: "HARGA", title: "Densitas penawaran melemah; spread komoditas melebar di kawasan Asia.", src: "FEED/MKT", ago: "4m" },
-      { kicker: "AIS", title: "Pergerakan kapal di lintas selat naik; sirkulasi logistik mulai padat.", src: "AIS/VESSEL", ago: "7m" },
-      { kicker: "CUACA", title: "Badai tropis mendekati pesisir timur; peringatan banjir & longsor dikeluarkan.", src: "FEED/WX", ago: "9m" },
-      { kicker: "SUPLAI", title: "Antrean truk di gerbang logistik memanjang; indeks penundaan menguat.", src: "GOOG/HTML", ago: "11m" },
-      { kicker: "SIBER", title: "Lonjakan anomali BGP di satu segmen backbone; provider mulai rerouting.", src: "FEED/NET", ago: "13m" }
+    "signals": [
+      {
+        "kicker": "LISTRIK",
+        "title": "Pemakaian listrik naik 9% di tiga wilayah menjelang jam sibuk.",
+        "src": "Data listrik",
+        "ago": "2m"
+      },
+      {
+        "kicker": "HARGA",
+        "title": "Harga komoditas di Asia makin berjarak antara tawaran jual dan beli.",
+        "src": "Data pasar",
+        "ago": "4m"
+      },
+      {
+        "kicker": "KAPAL",
+        "title": "Lalu lintas kapal di selat meningkat; jalur pengiriman mulai padat.",
+        "src": "Data kapal",
+        "ago": "7m"
+      },
+      {
+        "kicker": "CUACA",
+        "title": "Badai tropis mendekati pesisir timur; peringatan banjir dan longsor dikeluarkan.",
+        "src": "Data cuaca",
+        "ago": "9m"
+      },
+      {
+        "kicker": "LOGISTIK",
+        "title": "Antrean truk di gerbang pelabuhan makin panjang; keterlambatan bertambah.",
+        "src": "Data logistik",
+        "ago": "11m"
+      },
+      {
+        "kicker": "JARINGAN",
+        "title": "Gangguan di salah satu jalur internet utama; penyedia mulai mengalihkan lalu lintas.",
+        "src": "Data jaringan",
+        "ago": "13m"
+      }
     ],
-    sectors: [
-      { flag: "🇺🇦", code: "UA", val: 82 },
-      { flag: "🇷🇺", code: "RU", val: 76 },
-      { flag: "🇸🇾", code: "SY", val: 72 },
-      { flag: "🇮🇷", code: "IR", val: 70 },
-      { flag: "🇲🇽", code: "MX", val: 70 }
+    "sectors": [
+      {
+        "flag": "🇺🇦",
+        "code": "UA",
+        "val": 82
+      },
+      {
+        "flag": "🇷🇺",
+        "code": "RU",
+        "val": 76
+      },
+      {
+        "flag": "🇸🇾",
+        "code": "SY",
+        "val": 72
+      },
+      {
+        "flag": "🇮🇷",
+        "code": "IR",
+        "val": 70
+      },
+      {
+        "flag": "🇲🇽",
+        "code": "MX",
+        "val": 70
+      }
     ],
-    chokepoints: [
-      { name: "Selat Lombok", status: "tersendat", val: 70 },
-      { name: "Selat Sunda", status: "tersendat", val: 68 },
-      { name: "Selat Malaka", status: "waspada", val: 48 },
-      { name: "Selat Makassar", status: "lancar", val: 35 },
-      { name: "Lintas Korea", status: "waspada", val: 45 }
+    "chokepoints": [
+      {
+        "name": "Selat Lombok",
+        "status": "tersendat",
+        "val": 70
+      },
+      {
+        "name": "Selat Sunda",
+        "status": "tersendat",
+        "val": 68
+      },
+      {
+        "name": "Selat Malaka",
+        "status": "waspada",
+        "val": 48
+      },
+      {
+        "name": "Selat Makassar",
+        "status": "lancar",
+        "val": 35
+      },
+      {
+        "name": "Lintas Korea",
+        "status": "waspada",
+        "val": 45
+      }
     ],
-    markets: [
-      { name: "IDX Composite", cls: "ekuitas", val: 7651, pct: 0.17 },
-      { name: "Rupiah (DXY)", cls: "fx", val: 156.99, pct: -0.10 },
-      { name: "Emas", cls: "logam", val: 4399, pct: 0.58 },
-      { name: "Minyak WTI", cls: "energi", val: 94.00, pct: -2.16 },
-      { name: "Bitcoin", cls: "kripto", val: 81451, pct: 1.35 }
+    "markets": [
+      {
+        "name": "IDX Composite",
+        "cls": "saham",
+        "val": 7651,
+        "pct": 0.17
+      },
+      {
+        "name": "Indeks Dolar",
+        "cls": "kurs",
+        "val": 156.99,
+        "pct": -0.1
+      },
+      {
+        "name": "Emas",
+        "cls": "logam",
+        "val": 4399,
+        "pct": 0.58
+      },
+      {
+        "name": "Minyak WTI",
+        "cls": "energi",
+        "val": 94,
+        "pct": -2.16
+      },
+      {
+        "name": "Bitcoin",
+        "cls": "kripto",
+        "val": 81451,
+        "pct": 1.35
+      }
     ]
   };
 
@@ -153,10 +260,18 @@
     });
   }
 
+  function esc(t) {
+    return String(t).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  var lastTicker = "";
+
   function groupHtml(list) {
     var h = "";
     list.forEach(function (s) {
-      h += '<span class="ticker-hit">' + s.kicker + " · " + s.title + "</span>";
+      h += '<span class="ticker-hit">' + esc(s.kicker + " · " + s.title) + "</span>";
       h += '<span class="ticker-sep">◆</span>';
     });
     return '<span class="ticker-group">' + h + "</span>";
@@ -165,6 +280,9 @@
   function renderTicker(list) {
     var el = $("ticker-items");
     if (!el || !list || !list.length) return;
+    var key = JSON.stringify(list);
+    if (key === lastTicker) return;
+    lastTicker = key;
     el.innerHTML = groupHtml(list) + groupHtml(list);
     el.style.animation = "none";
     el.offsetHeight;
@@ -189,24 +307,28 @@
     setPulse(d);
   }
 
-  fetch("/api/monitor")
-    .then(function (r) {
-      if (!r.ok) throw new Error("api");
-      return r.json();
-    })
-    .then(function (d) {
-      render(d, "api");
-    })
-    .catch(function () {
-      render(EMBED, "fallback");
-    });
+  var rendered = false;
+  var poll = null;
 
-  setTimeout(function () {
-    document.querySelectorAll(".grid-numbers .num-value").forEach(function (el) {
-      var v = parseInt(el.dataset.count || "0", 10);
-      if (el.dataset.done) return;
-      el.dataset.done = "1";
-      el.textContent = v.toLocaleString("id-ID");
-    });
-  }, 300);
+  function load() {
+    fetch("/api/monitor", { cache: "no-store" })
+      .then(function (r) {
+        if (!r.ok) throw new Error("api");
+        return r.json();
+      })
+      .then(function (d) {
+        rendered = true;
+        render(d, "api");
+      })
+      .catch(function () {
+        if (rendered) return;
+        render(EMBED, "fallback");
+        if (poll) window.clearInterval(poll);
+      });
+  }
+
+  load();
+  poll = window.setInterval(function () {
+    if (!document.hidden) load();
+  }, 30000);
 })();

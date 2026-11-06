@@ -1,5 +1,4 @@
-import * as THREE from "three";
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+var THREE, OrbitControls;
 
 (function () {
   "use strict";
@@ -216,9 +215,17 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
     });
   }
 
+  function no3D() {
+    var card = dataCanvas && dataCanvas.parentElement;
+    if (!card) return;
+    card.classList.add("no-3d");
+    var hint = card.querySelector(".hint");
+    if (hint) hint.textContent = "Tampilan 3D tidak tersedia di perangkat atau koneksi ini.";
+  }
+
   function start() {
-    buildHero();
-    buildBarChart();
+    try { buildHero(); } catch (e) {}
+    try { buildBarChart(); } catch (e) { no3D(); }
     if (scenes.length === 0) return;
     resizeAll();
     window.addEventListener("resize", resizeAll);
@@ -244,9 +251,19 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
     rafId = requestAnimationFrame(animate);
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", start);
-  } else {
-    start();
+  function init() {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", start);
+    } else {
+      start();
+    }
   }
+
+  Promise.all([import("three"), import("three/addons/controls/OrbitControls.js")])
+    .then(function (m) {
+      THREE = m[0];
+      OrbitControls = m[1].OrbitControls;
+      init();
+    })
+    .catch(no3D);
 })();

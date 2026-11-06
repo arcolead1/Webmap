@@ -26,10 +26,10 @@
   ];
 
   var DONUT_DATA = [
-    { label: "Organik", value: 46, color: "#7c5cff" },
-    { label: "Direct", value: 27, color: "#22d3ee" },
-    { label: "Rujukan", value: 17, color: "#34d399" },
-    { label: "Sosial", value: 10, color: "#f472b6" }
+    { label: "Pencarian", value: 46, color: "#7c5cff" },
+    { label: "Langsung", value: 27, color: "#22d3ee" },
+    { label: "Tautan", value: 17, color: "#34d399" },
+    { label: "Media sosial", value: 10, color: "#f472b6" }
   ];
 
   var LIVE_BUFFER = [];

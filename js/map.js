@@ -3,10 +3,10 @@
 
   var EMBED = [
     { id: "jakarta", nama: "Jakarta Pusat", lat: -6.2088, lon: 106.8456, tag: "Kantor Pusat", users: 38, trend: 12.4 },
-    { id: "bandung", nama: "Bandung", lat: -6.9175, lon: 107.6191, tag: "R&D", users: 21, trend: 8.1 },
+    { id: "bandung", nama: "Bandung", lat: -6.9175, lon: 107.6191, tag: "Riset", users: 21, trend: 8.1 },
     { id: "yogyakarta", nama: "Yogyakarta", lat: -7.7971, lon: 110.3708, tag: "Kampus", users: 15, trend: -2.3 },
-    { id: "surabaya", nama: "Surabaya", lat: -7.2575, lon: 112.7521, tag: "Sales", users: 18, trend: 5.9 },
-    { id: "makassar", nama: "Makassar", lat: -5.1477, lon: 119.4327, tag: "Summit", users: 8, trend: 9.7 }
+    { id: "surabaya", nama: "Surabaya", lat: -7.2575, lon: 112.7521, tag: "Penjualan", users: 18, trend: 5.9 },
+    { id: "makassar", nama: "Makassar", lat: -5.1477, lon: 119.4327, tag: "Pertemuan", users: 8, trend: 9.7 }
   ];
 
   var el = document.getElementById("map");
@@ -36,7 +36,7 @@
     if (currentLayer) map.removeLayer(currentLayer);
     currentLayer = tileLayer(isdark());
     currentLayer.addTo(map);
-    if (currentList.length) addPoints(currentList);
+    if (currentList.length) addPoints(currentList, true);
   }
 
   new MutationObserver(applyTheme).observe(document.documentElement, {
@@ -53,7 +53,7 @@
     if (s) s.textContent = txt;
   }
 
-  function addPoints(list) {
+  function addPoints(list, keepView) {
     currentList = list;
     group.clearLayers();
     var accent = accentColor();
@@ -66,21 +66,26 @@
         fillOpacity: 0.35
       });
       var arrow = p.trend >= 0 ? "▲" : "▼";
-      mk.bindPopup(
-        "<strong>" + p.nama + "</strong><br>" +
-        p.tag + " · " + p.users + "k pengguna<br>" +
-        arrow + " " + Math.abs(p.trend) + "% vs bulan lalu"
-      );
+      var box = document.createElement("div");
+      var title = document.createElement("strong");
+      title.textContent = p.nama;
+      box.appendChild(title);
+      box.appendChild(document.createElement("br"));
+      box.appendChild(document.createTextNode(p.tag + " · " + p.users + "k pengguna"));
+      box.appendChild(document.createElement("br"));
+      box.appendChild(document.createTextNode(arrow + " " + Math.abs(p.trend) + "% vs bulan lalu"));
+      mk.bindPopup(box);
       group.addLayer(mk);
     });
     var count = document.getElementById("map-count");
     if (count) count.textContent = String(list.length);
-    if (list.length) map.fitBounds(group.getBounds(), { padding: [30, 30] });
+    if (list.length && !keepView) map.fitBounds(group.getBounds(), { padding: [30, 30] });
   }
 
   var pulseTimer = null;
+  var reduceMotion = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   function startPulse() {
-    if (pulseTimer) return;
+    if (pulseTimer || reduceMotion) return;
     var t0 = performance.now();
     pulseTimer = window.setInterval(function () {
       var t = (performance.now() - t0) / 480;
@@ -110,11 +115,11 @@
     .then(function (d) {
       if (!d.locations || !d.locations.length) throw new Error("kosong");
       addPoints(d.locations);
-      setSource("Sumber: API Node · " + d.total + " titik aktif");
+      setSource("Data dari server · " + d.total + " titik");
     })
     .catch(function () {
       addPoints(EMBED);
-      setSource("Sumber: data statis (fallback) — jalankan server Node untuk API");
+      setSource("Data contoh (server tidak aktif)");
     });
 
   var fitBtn = document.getElementById("map-fit");
