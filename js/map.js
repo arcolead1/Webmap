@@ -36,7 +36,7 @@
     if (currentLayer) map.removeLayer(currentLayer);
     currentLayer = tileLayer(isdark());
     currentLayer.addTo(map);
-    if (currentList.length) addPoints(currentList);
+    if (currentList.length) addPoints(currentList, true);
   }
 
   new MutationObserver(applyTheme).observe(document.documentElement, {
@@ -53,7 +53,7 @@
     if (s) s.textContent = txt;
   }
 
-  function addPoints(list) {
+  function addPoints(list, keepView) {
     currentList = list;
     group.clearLayers();
     var accent = accentColor();
@@ -66,21 +66,26 @@
         fillOpacity: 0.35
       });
       var arrow = p.trend >= 0 ? "▲" : "▼";
-      mk.bindPopup(
-        "<strong>" + p.nama + "</strong><br>" +
-        p.tag + " · " + p.users + "k pengguna<br>" +
-        arrow + " " + Math.abs(p.trend) + "% vs bulan lalu"
-      );
+      var box = document.createElement("div");
+      var title = document.createElement("strong");
+      title.textContent = p.nama;
+      box.appendChild(title);
+      box.appendChild(document.createElement("br"));
+      box.appendChild(document.createTextNode(p.tag + " · " + p.users + "k pengguna"));
+      box.appendChild(document.createElement("br"));
+      box.appendChild(document.createTextNode(arrow + " " + Math.abs(p.trend) + "% vs bulan lalu"));
+      mk.bindPopup(box);
       group.addLayer(mk);
     });
     var count = document.getElementById("map-count");
     if (count) count.textContent = String(list.length);
-    if (list.length) map.fitBounds(group.getBounds(), { padding: [30, 30] });
+    if (list.length && !keepView) map.fitBounds(group.getBounds(), { padding: [30, 30] });
   }
 
   var pulseTimer = null;
+  var reduceMotion = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   function startPulse() {
-    if (pulseTimer) return;
+    if (pulseTimer || reduceMotion) return;
     var t0 = performance.now();
     pulseTimer = window.setInterval(function () {
       var t = (performance.now() - t0) / 480;

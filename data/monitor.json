@@ -1,0 +1,144 @@
+{
+  "stats": [
+    {
+      "label": "Jenis Lapisan Peta",
+      "value": 57
+    },
+    {
+      "label": "Feed Berita & OSINT",
+      "value": 461
+    },
+    {
+      "label": "Penyedia (Atribusi)",
+      "value": 750
+    },
+    {
+      "label": "Asal Alert Independen",
+      "value": 5
+    }
+  ],
+  "signals": [
+    {
+      "kicker": "GRID",
+      "title": "Beban jaringan listrik naik 9% di tiga koridor simulasi menjelang jam puncak.",
+      "src": "FEED/GRID",
+      "ago": "2m"
+    },
+    {
+      "kicker": "HARGA",
+      "title": "Densitas penawaran melemah; spread komoditas melebar di kawasan Asia.",
+      "src": "FEED/MKT",
+      "ago": "4m"
+    },
+    {
+      "kicker": "AIS",
+      "title": "Pergerakan kapal di lintas selat naik; sirkulasi logistik mulai padat.",
+      "src": "AIS/VESSEL",
+      "ago": "7m"
+    },
+    {
+      "kicker": "CUACA",
+      "title": "Badai tropis mendekati pesisir timur; peringatan banjir & longsor dikeluarkan.",
+      "src": "FEED/WX",
+      "ago": "9m"
+    },
+    {
+      "kicker": "SUPLAI",
+      "title": "Antrean truk di gerbang logistik memanjang; indeks penundaan menguat.",
+      "src": "GOOG/HTML",
+      "ago": "11m"
+    },
+    {
+      "kicker": "SIBER",
+      "title": "Lonjakan anomali BGP di satu segmen backbone; provider mulai rerouting.",
+      "src": "FEED/NET",
+      "ago": "13m"
+    }
+  ],
+  "sectors": [
+    {
+      "flag": "🇺🇦",
+      "code": "UA",
+      "val": 82
+    },
+    {
+      "flag": "🇷🇺",
+      "code": "RU",
+      "val": 76
+    },
+    {
+      "flag": "🇸🇾",
+      "code": "SY",
+      "val": 72
+    },
+    {
+      "flag": "🇮🇷",
+      "code": "IR",
+      "val": 70
+    },
+    {
+      "flag": "🇲🇽",
+      "code": "MX",
+      "val": 70
+    }
+  ],
+  "chokepoints": [
+    {
+      "name": "Selat Lombok",
+      "status": "tersendat",
+      "val": 70
+    },
+    {
+      "name": "Selat Sunda",
+      "status": "tersendat",
+      "val": 68
+    },
+    {
+      "name": "Selat Malaka",
+      "status": "waspada",
+      "val": 48
+    },
+    {
+      "name": "Selat Makassar",
+      "status": "lancar",
+      "val": 35
+    },
+    {
+      "name": "Lintas Korea",
+      "status": "waspada",
+      "val": 45
+    }
+  ],
+  "markets": [
+    {
+      "name": "IDX Composite",
+      "cls": "ekuitas",
+      "val": 7651,
+      "pct": 0.17
+    },
+    {
+      "name": "Rupiah (DXY)",
+      "cls": "fx",
+      "val": 156.99,
+      "pct": -0.1
+    },
+    {
+      "name": "Emas",
+      "cls": "logam",
+      "val": 4399,
+      "pct": 0.58
+    },
+    {
+      "name": "Minyak WTI",
+      "cls": "energi",
+      "val": 94,
+      "pct": -2.16
+    },
+    {
+      "name": "Bitcoin",
+      "cls": "kripto",
+      "val": 81451,
+      "pct": 1.35
+    }
+  ]
+}

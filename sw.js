@@ -1,4 +1,4 @@
-var CACHE = "webmap-v3";
+var CACHE = "webmap-v4";
 var ASSETS = [
   "./",
   "index.html",
@@ -70,7 +70,7 @@ self.addEventListener("fetch", function (event) {
         return res;
       }).catch(function () {
         if (req.mode === "navigate") return caches.match("index.html");
-        return cached;
+        return cached || Response.error();
       });
       return cached || network;
     })

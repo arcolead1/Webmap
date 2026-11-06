@@ -1,15 +1,16 @@
 {
   "name": "webmap",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "description": "Dashboard WebGL ringan + micro-server Node.js tanpa dependency (statis+gzip, API, SSE live).",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "check": "node --check server.js && node --check js/theme.js && node --check js/main.js && node --check js/charts.js && node --check js/map.js && node --check js/live.js && node --check sw.js"
+    "dev": "node --watch server.js",
+    "check": "node --check server.js && node --check js/theme.js && node --check js/main.js && node --check js/charts.js && node --check js/map.js && node --check js/live.js && node --check js/monitor.js && node --check sw.js"
   },
   "engines": {
-    "node": ">=14"
+    "node": ">=18"
   },
   "license": "MIT"
 }

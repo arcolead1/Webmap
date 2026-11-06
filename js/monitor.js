@@ -153,10 +153,18 @@
     });
   }
 
+  function esc(t) {
+    return String(t).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  var lastTicker = "";
+
   function groupHtml(list) {
     var h = "";
     list.forEach(function (s) {
-      h += '<span class="ticker-hit">' + s.kicker + " · " + s.title + "</span>";
+      h += '<span class="ticker-hit">' + esc(s.kicker + " · " + s.title) + "</span>";
       h += '<span class="ticker-sep">◆</span>';
     });
     return '<span class="ticker-group">' + h + "</span>";
@@ -165,6 +173,9 @@
   function renderTicker(list) {
     var el = $("ticker-items");
     if (!el || !list || !list.length) return;
+    var key = JSON.stringify(list);
+    if (key === lastTicker) return;
+    lastTicker = key;
     el.innerHTML = groupHtml(list) + groupHtml(list);
     el.style.animation = "none";
     el.offsetHeight;
@@ -189,17 +200,30 @@
     setPulse(d);
   }
 
-  fetch("/api/monitor")
-    .then(function (r) {
-      if (!r.ok) throw new Error("api");
-      return r.json();
-    })
-    .then(function (d) {
-      render(d, "api");
-    })
-    .catch(function () {
-      render(EMBED, "fallback");
-    });
+  var rendered = false;
+  var poll = null;
+
+  function load() {
+    fetch("/api/monitor", { cache: "no-store" })
+      .then(function (r) {
+        if (!r.ok) throw new Error("api");
+        return r.json();
+      })
+      .then(function (d) {
+        rendered = true;
+        render(d, "api");
+      })
+      .catch(function () {
+        if (rendered) return;
+        render(EMBED, "fallback");
+        if (poll) window.clearInterval(poll);
+      });
+  }
+
+  load();
+  poll = window.setInterval(function () {
+    if (!document.hidden) load();
+  }, 30000);
 
   setTimeout(function () {
     document.querySelectorAll(".grid-numbers .num-value").forEach(function (el) {
