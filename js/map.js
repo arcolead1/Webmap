@@ -13,9 +13,12 @@
   if (!el || typeof window.L === "undefined") return;
 
   var ATTRIB = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
+  var CFG = window.WEBMAP_CONFIG || {};
+  var KEY = typeof CFG.cartoKey === "string" ? CFG.cartoKey.trim() : "";
+  var QUERY = KEY ? "?key=" + encodeURIComponent(KEY) : "";
   var PROVIDERS = {
-    dark: { url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", opt: { attribution: ATTRIB, subdomains: "abcd", maxZoom: 19 } },
-    light: { url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", opt: { attribution: ATTRIB, subdomains: "abcd", maxZoom: 19 } }
+    dark: { url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" + QUERY, opt: { attribution: ATTRIB, subdomains: "abcd", maxZoom: 19 } },
+    light: { url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" + QUERY, opt: { attribution: ATTRIB, subdomains: "abcd", maxZoom: 19 } }
   };
 
   function isdark() {
@@ -24,7 +27,7 @@
 
   var map = L.map(el, { scrollWheelZoom: false, worldCopyJump: true }).setView([-2.9, 118.0], 5);
   var currentLayer = null;
-  var group = L.layerGroup().addTo(map);
+  var group = L.featureGroup().addTo(map);
   var currentList = [];
 
   function tileLayer(dark) {
@@ -50,7 +53,7 @@
 
   function setSource(txt) {
     var s = document.getElementById("map-source");
-    if (s) s.textContent = txt;
+    if (s) s.textContent = txt + (KEY ? "" : " · kunci peta belum diatur");
   }
 
   function addPoints(list, keepView) {

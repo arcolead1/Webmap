@@ -714,8 +714,12 @@ code {
   padding: 16px;
 }
 
+#peta {
+  width: min(1600px, 96%);
+}
+
 #map {
-  height: 480px;
+  height: clamp(520px, 78vh, 860px);
   border-radius: 10px;
   position: relative;
   z-index: 1;
@@ -1150,7 +1154,7 @@ code {
   }
 
   #map {
-    height: 380px;
+    height: clamp(440px, 68vh, 680px);
   }
 }
 
@@ -1164,7 +1168,7 @@ code {
   }
 
   #map {
-    height: 320px;
+    height: clamp(400px, 66vh, 560px);
   }
 
   .map-overlay {
